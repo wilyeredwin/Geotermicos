@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Dense
 import matplotlib.pyplot as plt
 
 # Solicitar la ruta y el nombre del archivo al usuario
-ruta_archivo = "D:/Geotermicos/Datos/Datos.csv" # Cambia esto a la ruta deseada)
+ruta_archivo = "D:/Geotermicos/Datos/Datos_R.csv" # Cambia esto a la ruta deseada)
 
 try:
     # Leer el archivo .csv
@@ -18,12 +18,8 @@ try:
     print(datos.head())
 
     # Separar características (X) y variable objetivo (y)
-    X = datos[['Temperatura', 'Resiliencia',
-               'Esfuerzo desviador', 'Confinamiento', 'Traccion', 
-               'Compresion', 'Densidad seca', 'Porosidad', 'Plasticidad', 
-               'Materia organica', 'Indice azul de metileno', 'Conductividad termica', 
-               'Contenido de agua']]
-    y = datos['Contenido de cemento']
+    X = datos[['Mr', 'Sd', 'Cp', 'C_Mpa', 'T_Mpa', 'IP', 'LOI', 'MBI', 'Tem']]  # Asegúrate de que estas columnas existan en tu archivo
+    y = datos['C_S']  # Cambia esto al nombre de la columna de tu variable objetivo
 
     # Normalizar las características
     scaler = MinMaxScaler()
@@ -40,7 +36,7 @@ try:
     ])
 
     # Compilar el modelo
-    modelo.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    modelo.compile(optimizer='adam', loss='mse', metrics=['mse'])
 
     # Entrenar el modelo
     historia = modelo.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.2)
@@ -49,6 +45,20 @@ try:
     resultados = modelo.evaluate(X_test, y_test)
     print(f"Pérdida (MSE): {resultados[0]}, Error Absoluto Medio (MAE): {resultados[1]}")
 
+    # Realizar predicciones en el conjunto de prueba
+    y_pred = modelo.predict(X_test)
+
+    # Crear un DataFrame con los valores reales (y_true) y los valores predichos (y_pred)
+    resultados_df = pd.DataFrame({
+        'y_true': y_test.values,  # Convertir y_test a un array si es necesario
+        'y_pred': y_pred.flatten()  # Asegurarse de que y_pred sea un array unidimensional
+    })
+
+    # Guardar los resultados en un archivo CSV
+    resultados_csv_path = "D:/Geotermicos/Datos/Predicciones.csv"
+    resultados_df.to_csv(resultados_csv_path, index=False)
+    print(f"Resultados guardados exitosamente en '{resultados_csv_path}'")
+
     # Graficar la pérdida durante el entrenamiento
     plt.plot(historia.history['loss'], label='Pérdida de entrenamiento')
     plt.plot(historia.history['val_loss'], label='Pérdida de validación')
@@ -56,14 +66,23 @@ try:
     plt.ylabel('Pérdida')
     plt.legend()
     plt.show()
-
+#'Tem', 'Mr', 'Sd', 'Cp', 'n', 'IP', 'LOI', 'MBI',
+#    'C_Mpa', 'T_Mpa'
     # Predicción en nuevos datos (ejemplo)
-    nuevos_datos = [[25, 150, 3.8, 100, 2.7, 1.8, 2.5, 0.4, 0.3, 0.2, 0.1, 1.2, 0.5]]  # Ejemplo: Resiliencia, Tracción, Compresión
+    nuevos_datos = [[300, 50, 25, 3, 2, 0, 15, 25, 20]]  # Ejemplo: Resiliencia, Tracción, Compresión
     nuevos_datos_normalizados = scaler.transform(nuevos_datos)
     prediccion = modelo.predict(nuevos_datos_normalizados)
+    resultado = prediccion[0][0]
+    print(f"Predicción de cemento: {resultado}")
+    # Mostrar la predicción
     print(f"Contenido de cemento predicho: {prediccion[0][0]}")
+
 
 except FileNotFoundError:
     print(f"Error: No se encontró el archivo en la ruta especificada: {ruta_archivo}")
 except Exception as e:
     print(f"Se produjo un error al leer el archivo o procesar los datos: {e}")
+
+# Guardar el modelo entrenado
+modelo.save("D:/Geotermicos/Modelo/modelo_entrenado.h5")
+print("Modelo guardado exitosamente en 'D:/Geotermicos/Modelo/modelo_entrenado.h5'")
