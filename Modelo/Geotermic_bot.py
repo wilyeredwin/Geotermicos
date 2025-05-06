@@ -38,7 +38,7 @@ print(f"Pérdida (MSE): {mse_value:.2e}")
 # Función de inicio
 async def start(update: Update, context) -> int:
     await update.message.reply_text(
-        "¡Hola! Soy un bot para ayudarte con el diseño de la mezcla para suelos mejorados"
+        "¡Hola Ing. Civil! Soy un bot para ayudarte con el diseño de la mezcla para suelos mejorados "
         "con cemento para la construcción de pavimentos.\n"
         "Primero, responde las siguientes preguntas para que pueda realizar la predicción."
     )
@@ -61,12 +61,25 @@ async def ask_traffic(update: Update, context) -> int:
             await update.message.reply_text("Por favor, ingresa exactamente 3 valores separados por comas (Mr, Sd, Cp).")
             return TRAFFIC
 
+        # Validar los rangos de los valores
+        if not (10 <= valores[0] <= 400):
+            await update.message.reply_text("El Módulo Resiliente (Mr) debe estar entre 10 y 400 MPa.")
+            return TRAFFIC
+        if not (10 <= valores[1] <= 67):
+            await update.message.reply_text("El Esfuerzo Desviador (Sd) debe estar entre 10 y 67 MPa.")
+            return TRAFFIC
+        if not (10 <= valores[2] <= 42):
+            await update.message.reply_text("La Presión de Confinamiento (Cp) debe estar entre 10 y 42 MPa.")
+            return TRAFFIC
+
+        # Guardar los valores en el contexto del usuario
         context.user_data['traffic'] = valores
         await update.message.reply_text(
             "2. ¿Cuál es la resistencia de diseño a compresión y tracción?\n\n"
             " -Recuerda que el valor de la Resistencia a la compresión debe estar entre 1 y 4 MPa  \n"
             " -y la resistencia a la tracción indirecta debe estar entre 0.5 y 6 MPa. \n"
-            "Responde únicamente con los valores en MPa en el siguiente orden, separados por comas: C, T.")
+            "Responde únicamente con los valores en MPa en el siguiente orden, separados por comas: C, T."
+        )
         return RESISTANCE
     except ValueError:
         await update.message.reply_text("Por favor, ingresa valores numéricos separados por comas.")
@@ -79,9 +92,18 @@ async def ask_resistance(update: Update, context) -> int:
         valores = list(map(float, texto.split(',')))
 
         if len(valores) != 2:
-            await update.message.reply_text("Por favor, ingresa exactamente 2 valores separados por comas Compresión (MPa), Tracción (MPa).")
+            await update.message.reply_text("Por favor, ingresa exactamente 2 valores separados por comas: Compresión (MPa), Tracción (MPa).")
             return RESISTANCE
 
+        # Validar los rangos de los valores
+        if not (1 <= valores[0] <= 4):
+            await update.message.reply_text("El valor de la Resistencia a la Compresión (C) debe estar entre 1 y 4 MPa.")
+            return RESISTANCE
+        if not (0.5 <= valores[1] <= 6):
+            await update.message.reply_text("El valor de la Resistencia a la Tracción (T) debe estar entre 0.5 y 6 MPa.")
+            return RESISTANCE
+
+        # Guardar los valores en el contexto del usuario
         context.user_data['resistance'] = valores
         await update.message.reply_text(
             "3. ¿Qué tipo de suelo deseas mejorar?\n\n"
@@ -89,7 +111,8 @@ async def ask_resistance(update: Update, context) -> int:
             "Teniendo en cuenta que: \n"
             " -El Índice de Plasticidad (IP) debe estar entre 0 y 0.9, \n"
             " -el contenido de Materia orgánica (LOI) entre 0 y 20 \n"
-            " -y el Índice de Azul de Metileno (MBI) entre 0 y 100.", parse_mode="Markdown")
+            " -y el Índice de Azul de Metileno (MBI) entre 0 y 100.", parse_mode="Markdown"
+        )
         return SOIL
     except ValueError:
         await update.message.reply_text("Por favor, ingresa valores numéricos separados por comas.")
@@ -105,10 +128,23 @@ async def ask_soil(update: Update, context) -> int:
             await update.message.reply_text("Por favor, ingresa exactamente 3 valores separados por comas (IP, LOI, MBI).")
             return SOIL
 
+        # Validar los rangos de los valores
+        if not (0 <= valores[0] <= 0.9):
+            await update.message.reply_text("El Índice de Plasticidad (IP) debe estar entre 0 y 0.9.")
+            return SOIL
+        if not (0 <= valores[1] <= 20):
+            await update.message.reply_text("El contenido de Materia Orgánica (LOI) debe estar entre 0 y 20.")
+            return SOIL
+        if not (0 <= valores[2] <= 100):
+            await update.message.reply_text("El Índice de Azul de Metileno (MBI) debe estar entre 0 y 100.")
+            return SOIL
+
+        # Guardar los valores en el contexto del usuario
         context.user_data['soil'] = valores
         await update.message.reply_text(
             "4. ¿Qué temperatura tendrás para curar el suelo cemento?\n\n" 
-            "Responde en grados Centígrados.")
+            "Responde en grados Centígrados."
+        )
         return TEMPERATURE
     except ValueError:
         await update.message.reply_text("Por favor, ingresa valores numéricos separados por comas.")
@@ -124,7 +160,12 @@ async def ask_tem(update: Update, context) -> int:
             await update.message.reply_text("Por favor, ingresa un único valor en grados Celsius.")
             return TEMPERATURE
 
+        # Paso 1: Validar y guardar la temperatura
+        await update.message.reply_text("Paso 1/4: Validando la temperatura ingresada... ✅")
         context.user_data['temperature'] = valores
+
+        # Paso 2: Preparar los datos de entrada
+        await update.message.reply_text("Paso 2/4: Preparando los datos para el modelo... ⏳")
         entradas = (
             context.user_data['traffic'] +
             context.user_data['resistance'] +
@@ -132,10 +173,14 @@ async def ask_tem(update: Update, context) -> int:
             context.user_data['temperature']
         )
         valores_normalizados = scaler.transform([entradas])
+
+        # Paso 3: Realizar la predicción
+        await update.message.reply_text("Paso 3/4: Calculando el valor predicho... 🔄")
         prediccion = modelo.predict(valores_normalizados)
         resultado = prediccion[0][0]
 
-        # Leer el archivo CSV con los valores reales y predichos
+        # Paso 4: Calcular métricas y mostrar resultados
+        await update.message.reply_text("Paso 4/4: Calculando métricas de evaluación... 📊")
         predicciones_csv_path = "D:/Geotermicos/Datos/Predicciones.csv"
         predicciones_df = pd.read_csv(predicciones_csv_path)
 
@@ -153,14 +198,17 @@ async def ask_tem(update: Update, context) -> int:
         mae_metric.update_state(y_true, y_pred)
         mae_value = mae_metric.result().numpy()
 
-        # Enviar el mensaje con los resultados
+        # Enviar el mensaje con los resultados finales
         await update.message.reply_text(
-            f"El contenido de cemento predicho es: {resultado:.2f}.\n"
-            f"Pérdida (MSE) calculada: {mse_value:.2e}.\n"
-            f"Error Absoluto Medio (MAE) calculado: {mae_value:.2e}.\n\n"
+            f"✅ Proceso completado.\n\n"
+            f"El contenido de cemento en peso es:\n```\n{resultado:.2f}\n```"
+            f"es decir que por cada Tonelada de suelo seco, se requiere {resultado:.2f} Toneladas de cemento.\n\n"
+            f"Pérdida (MSE) calculada:\n```\n{mse_value:.2e}\n```\n"
+            f"Error Absoluto Medio (MAE) calculado:\n```\n{mae_value:.2e}\n```\n\n"
             "Recuerda que este valor es una estimación y puede variar según las condiciones específicas de tu proyecto.\n"
             "Si deseas realizar otra predicción, simplemente envía /start para reiniciar el proceso.\n"
-            "Éxitos con tu proyecto. ¡Hasta luego!"
+            "Éxitos con tu pavimento. ¡Hasta luego!",
+            parse_mode="Markdown"
         )
         return ConversationHandler.END
     except FileNotFoundError:

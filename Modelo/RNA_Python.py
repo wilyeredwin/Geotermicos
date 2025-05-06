@@ -69,7 +69,7 @@ try:
 #'Tem', 'Mr', 'Sd', 'Cp', 'n', 'IP', 'LOI', 'MBI',
 #    'C_Mpa', 'T_Mpa'
     # Predicción en nuevos datos (ejemplo)
-    nuevos_datos = [[300, 50, 25, 3, 2, 0, 15, 25, 20]]  # Ejemplo: Resiliencia, Tracción, Compresión
+    nuevos_datos = [[300, 50, 20, 3, 2, 0.1, 10, 20, 25]]  # Ejemplo: Resiliencia, Tracción, Compresión
     nuevos_datos_normalizados = scaler.transform(nuevos_datos)
     prediccion = modelo.predict(nuevos_datos_normalizados)
     resultado = prediccion[0][0]
