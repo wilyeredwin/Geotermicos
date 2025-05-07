@@ -19,7 +19,7 @@ facilitando la toma de decisiones en proyectos de pavimentación.
 """
 # Librerías estándar de Python
 import logging  # Para mostrar mensajes de registro e información en consola
-
+import os
 # Librerías de ciencia de datos y machine learning
 import numpy as np  # Para operaciones numéricas y manejo de arreglos
 import pandas as pd  # Para manejo y análisis de datos en tablas (DataFrames)
@@ -255,8 +255,8 @@ async def cancel(update: Update, context) -> int:
 # Configuración del bot
 def main():
     # Reemplaza 'YOUR_TOKEN' con el token de tu bot
-    application = Application.builder().token("7959624365:AAHWHu7tQ2t1ZW_32PN1d9j4VnImY5jy9mg").build()
-
+    #application = Application.builder().token("7959624365:AAHWHu7tQ2t1ZW_32PN1d9j4VnImY5jy9mg").build()
+    application = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
     # Crear el manejador de la conversación
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
