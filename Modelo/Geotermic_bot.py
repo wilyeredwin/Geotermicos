@@ -255,8 +255,8 @@ async def cancel(update: Update, context) -> int:
 # Configuración del bot
 def main():
     # Reemplaza 'YOUR_TOKEN' con el token de tu bot
-    #application = Application.builder().token("7959624365:AAHWHu7tQ2t1ZW_32PN1d9j4VnImY5jy9mg").build()
-    application = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
+    application = Application.builder().token("7959624365:AAHWHu7tQ2t1ZW_32PN1d9j4VnImY5jy9mg").build()
+    # application = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
     # Crear el manejador de la conversación
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
