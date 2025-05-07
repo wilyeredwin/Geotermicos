@@ -5,7 +5,12 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 import matplotlib.pyplot as plt
-
+"""Este script implementa el entrenamiento de una 
+   red neuronal artificial (RNA) 
+   usando Python y Keras/TensorFlow 
+   para predecir el contenido óptimo de cemento necesario
+   para estabilizar suelos, a partir de variables de entrada
+   relevantes en ingeniería civil."""
 # Solicitar la ruta y el nombre del archivo al usuario
 ruta_archivo = "D:/Geotermicos/Datos/Datos_R.csv" # Cambia esto a la ruta deseada)
 
@@ -18,14 +23,21 @@ try:
     print(datos.head())
 
     # Separar características (X) y variable objetivo (y)
+    """Se seleccionan las columnas relevantes como variables 
+       de entrada (X): propiedades del suelo, esfuerzos, temperatura, etc."""
     X = datos[['Mr', 'Sd', 'Cp', 'C_Mpa', 'T_Mpa', 'IP', 'LOI', 'MBI', 'Tem']]  # Asegúrate de que estas columnas existan en tu archivo
     y = datos['C_S']  # Cambia esto al nombre de la columna de tu variable objetivo
 
     # Normalizar las características
+    """Se normalizan las variables de entrada con MinMaxScaler
+       para que todas estén en el mismo rango y el modelo 
+       aprenda mejor."""
     scaler = MinMaxScaler()
     X_normalizado = scaler.fit_transform(X)
 
     # Dividir los datos en entrenamiento y prueba
+    """Los datos se dividen en conjuntos de entrenamiento
+       y prueba (80%/20%) usando train_test_split."""
     X_train, X_test, y_train, y_test = train_test_split(X_normalizado, y, test_size=0.2, random_state=42)
 
     # Crear el modelo de red neuronal
@@ -66,8 +78,8 @@ try:
     plt.ylabel('Pérdida')
     plt.legend()
     plt.show()
-#'Tem', 'Mr', 'Sd', 'Cp', 'n', 'IP', 'LOI', 'MBI',
-#    'C_Mpa', 'T_Mpa'
+    #'Tem', 'Mr', 'Sd', 'Cp', 'n', 'IP', 'LOI', 'MBI',
+    #    'C_Mpa', 'T_Mpa'
     # Predicción en nuevos datos (ejemplo)
     nuevos_datos = [[300, 50, 20, 3, 2, 0.1, 10, 20, 25]]  # Ejemplo: Resiliencia, Tracción, Compresión
     nuevos_datos_normalizados = scaler.transform(nuevos_datos)
