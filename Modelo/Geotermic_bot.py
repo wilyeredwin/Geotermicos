@@ -73,11 +73,11 @@ async def start(update: Update, context) -> int:
     )
     await update.message.reply_text(
         "*1. ¿Qué esfuerzos por tráfico debe soportar la capa?*\n\n"
-        "Responde el Módulo Resiliente en MPa, el Esfuerzo Desviador en MPa y la Presión de confinamiento en MPa, separados por comas: Mr, Sd, Cp. \n"
+        "Responde el Módulo Resiliente en MPa, el Esfuerzo Desviador en kPa y la Presión de confinamiento en kPa, separados por comas: Mr, Sd, Cp. \n"
         "Debes tener en cuenta que:\n"
         " -el Módulo Resiliente debe estar entre 10 y 400 MPa,\n"
-        " -el Esfuerzo Desviador debe estar entre 10 y 67 MPa \n"
-        " -y la Presión de confinamiento debe estar entre 10 y 42 MPa.",parse_mode="Markdown")
+        " -el Esfuerzo Desviador debe estar entre 10 y 67 kPa \n"
+        " -y la Presión de confinamiento debe estar entre 10 y 42 kPa.",parse_mode="Markdown")
     return TRAFFIC
 
 # Pregunta 1: Tráfico
