@@ -1,13 +1,42 @@
-import logging
-import numpy as np
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, ConversationHandler, filters
-from tensorflow.keras.models import load_model
-from telegram.ext import CallbackContext
-from tensorflow.keras.metrics import MeanSquaredError, MeanAbsoluteError
-from sklearn.preprocessing import MinMaxScaler
-import pandas as pd
-from pytz import timezone
+"""
+Resumen del modelo de Machine Learning utilizado
+------------------------------------------------
+Este bot utiliza un modelo de red neuronal profunda (Deep Learning) desarrollado con TensorFlow y Keras.
+El modelo fue entrenado para predecir el contenido óptimo de cemento (en peso) necesario para estabilizar suelos,
+considerando variables de entrada como:
+
+- Esfuerzos por tráfico: Módulo Resiliente (Mr), Esfuerzo Desviador (Sd), Presión de Confinamiento (Cp)
+- Resistencia de diseño: Compresión (C), Tracción (T)
+- Propiedades del suelo: Índice de Plasticidad (IP), Materia Orgánica (LOI), Azul de Metileno (MBI)
+- Temperatura de curado (Tem)
+
+El modelo fue entrenado con datos históricos y validados, y su desempeño se evalúa mediante métricas como
+el Error Cuadrático Medio (MSE) y el Error Absoluto Medio (MAE). El modelo se carga desde el archivo
+"modelo_entrenado.h5" y utiliza un escalador MinMaxScaler para normalizar los datos de entrada antes de la predicción.
+
+El objetivo es asistir a ingenieros civiles en el diseño de mezclas para suelos mejorados con cemento,
+facilitando la toma de decisiones en proyectos de pavimentación.
+"""
+# Librerías estándar de Python
+import logging  # Para mostrar mensajes de registro e información en consola
+
+# Librerías de ciencia de datos y machine learning
+import numpy as np  # Para operaciones numéricas y manejo de arreglos
+import pandas as pd  # Para manejo y análisis de datos en tablas (DataFrames)
+from sklearn.preprocessing import MinMaxScaler  # Para normalizar los datos antes de usarlos en el modelo
+
+# Librerías de deep learning
+from tensorflow.keras.models import load_model  # Para cargar modelos de redes neuronales previamente entrenados
+from tensorflow.keras.metrics import MeanSquaredError, MeanAbsoluteError  # Para calcular métricas de evaluación
+
+# Librería para manejo de zonas horarias
+from pytz import timezone  # Para trabajar con fechas y horas en diferentes zonas horarias
+
+# Librerías para crear el bot de Telegram
+from telegram import Update  # Para manejar actualizaciones/mensajes del usuario
+from telegram.ext import (
+    Application, CommandHandler, MessageHandler, ConversationHandler, filters, CallbackContext
+)  # Para gestionar la lógica del bot y las conversaciones
 
 # Configuración del registro
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
