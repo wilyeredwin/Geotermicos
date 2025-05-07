@@ -72,12 +72,12 @@ async def start(update: Update, context) -> int:
         "Primero, responde las siguientes preguntas para que pueda realizar la predicción."
     )
     await update.message.reply_text(
-        "1. ¿Qué esfuerzos por tráfico debe soportar la capa?\n\n"
+        "*1. ¿Qué esfuerzos por tráfico debe soportar la capa?*\n\n"
         "Responde el Módulo Resiliente en MPa, el Esfuerzo Desviador en MPa y la Presión de confinamiento en MPa, separados por comas: Mr, Sd, Cp. \n"
         "Debes tener en cuenta que:\n"
         " -el Módulo Resiliente debe estar entre 10 y 400 MPa,\n"
         " -el Esfuerzo Desviador debe estar entre 10 y 67 MPa \n"
-        " -y la Presión de confinamiento debe estar entre 10 y 42 MPa.")
+        " -y la Presión de confinamiento debe estar entre 10 y 42 MPa.",parse_mode="Markdown")
     return TRAFFIC
 
 # Pregunta 1: Tráfico
@@ -104,10 +104,11 @@ async def ask_traffic(update: Update, context) -> int:
         # Guardar los valores en el contexto del usuario
         context.user_data['traffic'] = valores
         await update.message.reply_text(
-            "2. ¿Cuál es la resistencia de diseño a compresión y tracción?\n\n"
+            "*2. ¿Cuál es la resistencia de diseño a compresión y tracción?*\n\n"
             " -Recuerda que el valor de la Resistencia a la compresión debe estar entre 1 y 4 MPa  \n"
             " -y la resistencia a la tracción indirecta debe estar entre 0.5 y 6 MPa. \n"
-            "Responde únicamente con los valores en MPa en el siguiente orden, separados por comas: C, T."
+            "Responde únicamente con los valores en MPa en el siguiente orden, separados por comas: C, T.",
+            parse_mode="Markdown"
         )
         return RESISTANCE
     except ValueError:
@@ -135,7 +136,7 @@ async def ask_resistance(update: Update, context) -> int:
         # Guardar los valores en el contexto del usuario
         context.user_data['resistance'] = valores
         await update.message.reply_text(
-            "3. ¿Qué tipo de suelo deseas mejorar?\n\n"
+            "*3. ¿Qué tipo de suelo deseas mejorar?*\n\n"
             "Responde en el siguiente orden separados por comas: IP, LOI, MBI.\n"
             "Teniendo en cuenta que: \n"
             " -El Índice de Plasticidad (IP) debe estar entre 0 y 0.9, \n"
@@ -171,8 +172,8 @@ async def ask_soil(update: Update, context) -> int:
         # Guardar los valores en el contexto del usuario
         context.user_data['soil'] = valores
         await update.message.reply_text(
-            "4. ¿Qué temperatura tendrás para curar el suelo cemento?\n\n" 
-            "Responde en grados Centígrados."
+            "*4. ¿Qué temperatura tendrás para curar el suelo cemento?*\n\n" 
+            "Responde en grados Centígrados.", parse_mode="Markdown"
         )
         return TEMPERATURE
     except ValueError:
@@ -231,7 +232,7 @@ async def ask_tem(update: Update, context) -> int:
         await update.message.reply_text(
             f"✅ Proceso completado.\n\n"
             f"El contenido de cemento en peso es:\n```\n{resultado:.2f}\n```"
-            f"es decir que por cada Tonelada de suelo seco, se requiere {resultado:.2f} Toneladas de cemento.\n\n"
+            f"es decir que por cada Tonelada de suelo seco, se requiere *{resultado:.2f} Toneladas de cemento.*\n\n"
             f"Pérdida (MSE) calculada:\n```\n{mse_value:.2e}\n```\n"
             f"Error Absoluto Medio (MAE) calculado:\n```\n{mae_value:.2e}\n```\n\n"
             "Recuerda que este valor es una estimación y puede variar según las condiciones específicas de tu proyecto.\n"
@@ -255,8 +256,8 @@ async def cancel(update: Update, context) -> int:
 # Configuración del bot
 def main():
     # Reemplaza 'YOUR_TOKEN' con el token de tu bot
-    application = Application.builder().token("7959624365:AAHWHu7tQ2t1ZW_32PN1d9j4VnImY5jy9mg").build()
-    # application = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
+    application = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
+    
     # Crear el manejador de la conversación
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
